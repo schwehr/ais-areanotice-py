@@ -53,9 +53,9 @@ Still in development.  Definitely has bugs.
             'Topic :: Software Development :: Code Generators',
             'Topic :: Scientific/Engineering :: GIS',
             ],
-          #packages=['ais-areanotice','ais','aisutils','nmea'],
+          packages=['ais_areanotice']#,'ais','aisutils','nmea'],
           #scripts=SCRIPTS,
-          scripts = glob.glob('*.py'),
+          #scripts = glob.glob('*.py'),
           #data_files = [('.',['samples.txt', 'samples.kml', 'areanotice_styles.kml', 'icon-001-rightwhale-64x64.png',]),]
           )
 

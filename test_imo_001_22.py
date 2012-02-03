@@ -31,9 +31,9 @@ import datetime
 import unittest
 import geojson
 import math
-import imo_001_22_area_notice as an
-from imo_001_22_area_notice import vec_rot, vec_add# , deg2rad
-from imo_001_22_area_notice import AisPackingException, AisUnpackingException
+import ais_areanotice.imo_001_22_area_notice as an
+from ais_areanotice.imo_001_22_area_notice import vec_rot, vec_add# , deg2rad
+from ais_areanotice.imo_001_22_area_notice import AisPackingException, AisUnpackingException
 
 def almost_equal(v1,v2,epsilon=0.2):
     if isinstance(v1,float) or isinstance(v1,int):

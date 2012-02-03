@@ -64,6 +64,8 @@ import binary, aisstring
 import Queue
 import re
 
+import geodesic
+
 next_sequence=1
 'Track the next value to use for multiline nmea messages'
 
@@ -473,43 +475,45 @@ short_notice = _make_short_notice()
 def lon_to_utm_zone(lon):
     return int(( lon + 180 ) / 6) + 1
 
-def ll_to_delta_m (lon1, lat1, lon2, lat2):
-    'calculate dx and dy in meters between two points'
-    zone = lon_to_utm_zone( (lon1 + lon2 ) / 2.) # Just don't cross the dateline!
-    params = {'proj':'utm', 'zone':zone}
-    proj = Proj(params)
+#def ll_to_delta_m (lon1, lat1, lon2, lat2):
+    #'calculate dx and dy in meters between two points'
+    #zone = lon_to_utm_zone( (lon1 + lon2 ) / 2.) # Just don't cross the dateline!
+    #params = {'proj':'utm', 'zone':zone}
+    #proj = Proj(params)
 
-    utm1 = proj(lon1,lat1)
-    utm2 = proj(lon2,lat2)
+    #utm1 = proj(lon1,lat1)
+    #utm2 = proj(lon2,lat2)
 
-    return utm2[0]-utm1[0],utm2[1]-utm1[1]
+    #return utm2[0]-utm1[0],utm2[1]-utm1[1]
 
-def dist(p1,p2):
-    return math.sqrt( (p1[0]-p2[0])*(p1[0]-p2[0]) + (p1[1]-p2[1])*(p1[1]-p2[1]) )
+#def dist(p1,p2):
+    #return math.sqrt( (p1[0]-p2[0])*(p1[0]-p2[0]) + (p1[1]-p2[1])*(p1[1]-p2[1]) )
 
-def deltas_to_angle_dist(deltas_m):
-    r = []
-    for i in range(1,len(deltas_m)):
-        p1 = deltas_m[i-1]
-        p2 = deltas_m[i]
-        dist_m = dist(p1, p2)
-        #print ('angle_from:',p2[1]-p1[1], dist_m)
-        angle = math.acos( (p2[1]-p1[1]) / dist_m) # cos alpha = dy / dist_m
-        if p2[0]<p1[0]:
-            #print ('switching_sense:',angle,2*math.pi-angle)
-            angle = 2*math.pi - angle
-        r.append((math.degrees(angle),dist_m))
-    return r
+#def deltas_to_angle_dist(deltas_m):
+    #r = []
+    #for i in range(1,len(deltas_m)):
+        #p1 = deltas_m[i-1]
+        #p2 = deltas_m[i]
+        #dist_m = dist(p1, p2)
+        ##print ('angle_from:',p2[1]-p1[1], dist_m)
+        #angle = math.acos( (p2[1]-p1[1]) / dist_m) # cos alpha = dy / dist_m
+        #if p2[0]<p1[0]:
+            ##print ('switching_sense:',angle,2*math.pi-angle)
+            #angle = 2*math.pi - angle
+        #r.append((math.degrees(angle),dist_m))
+    #return r
 
 def ll_to_polyline(ll_points):
     # Skips the first point as that is returned as an x,y.  ll==lonlat
     ll = ll_points
     assert(len(ll)>=2)
-    deltas_m = [(0,0)]
+    #deltas_m = [(0,0)]
+    offsets = []
     for i in range(1,len(ll)):
-        dx_m,dy_m = ll_to_delta_m(ll[i-1][0],ll[i-1][1], ll[i][0],ll[i][1])
-        deltas_m.append((dx_m,dy_m))
-    offsets = deltas_to_angle_dist(deltas_m)
+        offsets.append(geodesic.inverse(ll[i-1][0],ll[i-1][1], ll[i][0],ll[i][1]))
+        #dx_m,dy_m = ll_to_delta_m(ll[i-1][0],ll[i-1][1], ll[i][0],ll[i][1])
+        #deltas_m.append((dx_m,dy_m))
+    #offsets = deltas_to_angle_dist(deltas_m)
     #print ('ll_points:',ll_points)
     #print ('deltas_m:',deltas_m)
     #print ('angles_and_offsets:',offsets)
@@ -519,28 +523,35 @@ def polyline_to_ll(start, angles_and_offsets):
     # start lon,lat plus a list of (angle,offset) from that point
     # 0 is true north and runs clockwise
     points = angles_and_offsets
+    cur = start[:]
+    pts = [cur]
     
-    lon,lat = start
-    zone = lon_to_utm_zone(lon)
-    params = {'proj':'utm','zone':zone}
-    proj = Proj(params)
+    #lon,lat = start
+    #zone = lon_to_utm_zone(lon)
+    #params = {'proj':'utm','zone':zone}
+    #proj = Proj(params)
 
-    p1 = proj(lon,lat)
+    #p1 = proj(lon,lat)
 
-    pts = [(0,0)]
-    cur = (0,0)
+    #pts = [(0,0)]
+    #cur = (0,0)
     #print ('points:',points)
     for pt in points:
-        alpha = math.radians(pt[0]) # Angle
+        
+        #alpha = math.radians(pt[0]) # Angle
         d = pt[1] # Offset
-        dx,dy = d * math.sin(alpha), d * math.cos(alpha)
-        cur = vec_add(cur,(dx,dy))
+        #print ('cur:',cur)
+        cur = geodesic.direct(cur[0],cur[1],pt[0],d)
+        #print ('pt:',pt,'cur:',cur)
+        #dx,dy = d * math.sin(alpha), d * math.cos(alpha)
+        #cur = vec_add(cur,(dx,dy))
         #print ('pt:',proj(*cur,inverse=True))
         pts.append(cur)
 
     #print (pts)
-    pts = [vec_add(p1,pt) for pt in pts]
-    pts = [proj(*pt,inverse=True) for pt in pts]
+    #pts = [vec_add(p1,pt) for pt in pts]
+    #pts = [proj(*pt,inverse=True) for pt in pts]
+    
     return pts
 
 def frange(start, stop=None, step=None):

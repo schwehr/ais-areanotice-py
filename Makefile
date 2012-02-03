@@ -23,8 +23,8 @@ sdist: samples.txt
 
 # To verbose or not to verbose
 test:
-	@./binary.py --test
-	@./aisstring.py --test
+	@./ais_areanotice/binary.py --test
+	@./ais_areanotice/aisstring.py --test
 	@./test_imo_001_22.py
 	@./test_imo_001_26_env.py
 #	./imo_001_22_area_notice.py
