@@ -79,6 +79,10 @@ def inverse(lon1,lat1,lon2,lat2):
     @param lon2,lat2: Position P2 in degrees
     @return: azimuth in degrees, distance in meters
     '''
+
+    if(lon1 == lon2 and lat1 == lat2): #short circuit if same points, avoids div by zero later
+        return 0.0,0.0
+    
     
     a = 6378137.0        # length of major axis of the ellipsoid (radius at equator in meters)
     b = 6356752.314245   # length of minor axis of the ellipsoid (radius at the poles)
@@ -161,4 +165,7 @@ if __name__=='__main__':
     testDirect(-70.0,43.0,90.0,5000.0)
     testDirect(-70.0,43.0,200.0,25000.0)
     testInverse(0,0,1,0)
+    testInverse(-70.0,43.0,-69.0,43.0)
+    testInverse(-70.0,43.0,-70.0,43.5)
+    testInverse(-70.0,43.0,-70.0,43.0)
     
