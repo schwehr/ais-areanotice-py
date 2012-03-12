@@ -8,8 +8,8 @@ SensorReports.
 since: Mon Feb 14 15:55:02 2011 -0500
 '''
 
-import imo_001_26_environment as env
-import aisstring
+import ais_areanotice.imo_001_26_environment as env
+import ais_areanotice.aisstring as aisstring
 
 import math, random
 import sys
