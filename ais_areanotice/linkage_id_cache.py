@@ -10,7 +10,7 @@ class Linkage:
         self.min_id = min_id
         self.max_id = max_id
 
-        if os.path.isfile(cache_file):
+        try:
             infile = file(cache_file)
             self.cache = pickle.load(infile)
             expired = []
@@ -20,7 +20,7 @@ class Linkage:
                     expired.append(k)
             for e in expired:
                 del(self.cache[e])
-        else:
+        except:
             self.cache = {}
 
     def getID(self,key,expiration):
